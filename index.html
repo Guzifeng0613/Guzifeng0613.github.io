@@ -4,92 +4,120 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>个人主页</title>
+<script>
+/* 尽早确定主题，避免刷新闪烁 */
+(function(){
+  try{
+    var t=localStorage.getItem("theme");
+    if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}
+    document.documentElement.dataset.theme=t;
+  }catch(e){document.documentElement.dataset.theme="light";}
+})();
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E5C52'/%3E%3Crect x='9' y='9' width='14' height='14' rx='3' fill='none' stroke='%23F3F5F2' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='2.6' fill='%23BE6A2B'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <style>
   :root{
-    --paper:#F3F5F2;
-    --surface:#FCFDFB;
-    --ink:#15201D;
-    --muted:#4E5C56;
-    --faint:#77837D;
+    --paper:#F3F5F2; --surface:#FCFDFB;
+    --ink:#15201D; --muted:#4E5C56; --faint:#77837D;
     --line:#DCE1DA;
-    --brand:#0E5C52;
-    --brand-deep:#0A453E;
-    --brand-soft:#E3EDE9;
+    --brand:#0E5C52; --brand-deep:#0A453E; --brand-soft:#E3EDE9;
     --accent:#BE6A2B;
-    --radius:14px;
-    --maxw:1080px;
-    --serif:"Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
-    --sans:"Noto Sans SC", "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+    --c0:#DCE1DA; --c1:#BFD6CF; --c2:#7FB3A8; --c3:#0E5C52;
+    --nav-bg:color-mix(in srgb,var(--paper) 86%,transparent);
+    --lift:0 16px 34px -20px rgba(14,92,82,.55);
+    --lang-python:#3776AB; --lang-ts:#3178C6; --lang-dart:#BE6A2B;
+    --radius:14px; --maxw:1080px;
+    --serif:"Noto Serif SC","Songti SC","STSong",Georgia,serif;
+    --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+  }
+  :root[data-theme="dark"]{
+    --paper:#101715; --surface:#16201D;
+    --ink:#E8EEEA; --muted:#A7B4AD; --faint:#7E8C84;
+    --line:#29332F;
+    --brand:#61B9AA; --brand-deep:#84CABD; --brand-soft:#1E2E2A;
+    --accent:#DB8C52;
+    --c0:#26302C; --c1:#2E4A44; --c2:#3E736A; --c3:#61B9AA;
+    --nav-bg:color-mix(in srgb,var(--paper) 88%,transparent);
+    --lift:0 18px 38px -18px rgba(0,0,0,.65);
+    --lang-python:#6FA8DC; --lang-ts:#79AEE8; --lang-dart:#DB8C52;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{
-    font-family:var(--sans);
-    background:var(--paper);
-    color:var(--ink);
-    line-height:1.7;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
-  }
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;transition:background .35s ease,color .35s ease}
   a{color:inherit;text-decoration:none}
   img,svg{display:block}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  ::selection{background:color-mix(in srgb,var(--brand) 30%,transparent)}
+  ::-webkit-scrollbar{width:11px}
+  ::-webkit-scrollbar-track{background:var(--paper)}
+  ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--brand) 38%,var(--line));border-radius:8px;border:3px solid var(--paper)}
+  :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+
+  /* 阅读进度 */
+  .progress{position:fixed;top:0;left:0;height:2.5px;width:0;z-index:70;background:linear-gradient(90deg,var(--brand),var(--accent))}
 
   /* ===== 导航 ===== */
-  .nav{
-    position:sticky;top:0;z-index:50;
-    background:color-mix(in srgb, var(--paper) 88%, transparent);
-    backdrop-filter:saturate(1.1) blur(6px);
-    border-bottom:1px solid var(--line);
-  }
+  .nav{position:sticky;top:0;z-index:60;background:var(--nav-bg);backdrop-filter:saturate(1.1) blur(7px);border-bottom:1px solid var(--line);transition:box-shadow .25s,background .35s}
+  .nav.scrolled{background:var(--paper);box-shadow:0 9px 26px -22px rgba(0,0,0,.5)}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .nav-brand{font-family:var(--serif);font-weight:700;font-size:19px;letter-spacing:.02em}
+  .nav-brand{font-family:var(--serif);font-weight:700;font-size:19px}
   .nav-brand span{color:var(--brand)}
-  .nav-links{display:flex;align-items:center;gap:26px}
-  .nav-links a.link{font-size:15px;color:var(--muted);font-weight:400;transition:color .18s}
+  .nav-links{display:flex;align-items:center;gap:22px}
+  .nav-links a.link{position:relative;font-size:15px;color:var(--muted);transition:color .18s;padding:4px 2px}
+  .nav-links a.link::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;border-radius:2px;background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform .22s}
   .nav-links a.link:hover{color:var(--brand)}
-  .icon-btn{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);border:1px solid var(--line);padding:7px 13px;border-radius:999px;background:var(--surface);transition:.18s}
+  .nav-links a.link.active{color:var(--brand);font-weight:500}
+  .nav-links a.link.active::after{transform:scaleX(1)}
+  .icon-btn{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);border:1px solid var(--line);padding:7px 13px;border-radius:999px;background:var(--surface);transition:.18s;cursor:pointer;font-family:inherit}
   .icon-btn:hover{border-color:var(--brand);color:var(--brand)}
   .icon-btn svg{width:17px;height:17px;fill:currentColor}
+  .icon-only{padding:8px;border-radius:50%}
+  .icon-only svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
+  [data-theme="light"] .i-sun{display:none}
+  [data-theme="dark"] .i-moon{display:none}
+  #themeToggle:active{transform:rotate(25deg) scale(.94)}
 
-  /* ===== Hero ===== */
-  .hero{padding:88px 0 76px;border-bottom:1px solid var(--line)}
+  /* ===== Hero / 入场 ===== */
+  .hero{padding:88px 0 76px;border-bottom:1px solid var(--line);scroll-margin-top:70px}
   .hero-grid{display:grid;grid-template-columns:1.35fr .9fr;gap:56px;align-items:center}
   .hero-loc{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--faint);margin-bottom:22px}
   .hero-loc svg{width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:1.8}
-  .hero h1{font-family:var(--serif);font-weight:900;font-size:clamp(40px,6vw,64px);line-height:1.12;letter-spacing:.01em}
+  .hero h1{font-family:var(--serif);font-weight:900;font-size:clamp(40px,6vw,64px);line-height:1.12}
   .hero-role{font-family:var(--serif);font-weight:500;font-size:clamp(19px,2.4vw,24px);color:var(--brand);margin-top:14px}
   .hero-bio{color:var(--muted);font-size:16.5px;margin-top:20px;max-width:34em}
   .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
   .btn{display:inline-flex;align-items:center;gap:9px;font-size:15.5px;font-weight:500;padding:12px 24px;border-radius:999px;transition:.18s;min-height:46px}
-  .btn-primary{background:var(--brand);color:#F3F5F2}
+  .btn-primary{background:var(--brand);color:var(--paper)}
   .btn-primary:hover{background:var(--brand-deep);transform:translateY(-1px)}
+  .btn-primary:active{transform:scale(.98)}
   .btn-ghost{border:1px solid var(--line);background:var(--surface);color:var(--ink)}
   .btn-ghost:hover{border-color:var(--brand);color:var(--brand)}
+  .btn-ghost:active{transform:scale(.98)}
   .btn svg{width:18px;height:18px;fill:currentColor}
   .hero-social{display:flex;gap:18px;margin-top:30px}
-  .hero-social a{color:var(--faint);display:flex;transition:color .18s}
-  .hero-social a:hover{color:var(--brand)}
+  .hero-social a{color:var(--faint);display:flex;transition:color .18s,transform .18s}
+  .hero-social a:hover{color:var(--brand);transform:translateY(-2px)}
   .hero-social svg{width:21px;height:21px;fill:currentColor}
-
   .hero-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px}
-  .hero-card .hc-label{font-size:13px;color:var(--faint);margin-bottom:16px;letter-spacing:.04em}
+  .hero-card .hc-label{font-size:13px;color:var(--faint);margin-bottom:16px}
   .contrib{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
-  .contrib i{aspect-ratio:1;border-radius:3px;background:var(--line)}
-  .contrib i.l1{background:#BFD6CF}
-  .contrib i.l2{background:#7FB3A8}
-  .contrib i.l3{background:var(--brand)}
-  .contrib i.la{background:var(--accent)}
+  .contrib i{aspect-ratio:1;border-radius:3px;background:var(--c0)}
+  .contrib i.l1{background:var(--c1)}.contrib i.l2{background:var(--c2)}.contrib i.l3{background:var(--c3)}.contrib i.la{background:var(--accent)}
   .hero-card .hc-line{height:1px;background:var(--line);margin:20px 0 16px}
   .hero-card .hc-foot{display:flex;align-items:center;justify-content:space-between;font-size:13.5px;color:var(--muted)}
   .hero-card .hc-foot b{font-family:var(--serif);color:var(--ink);font-weight:700;font-size:16px}
 
-  /* ===== 通用区块 ===== */
-  section.block{padding:78px 0;border-bottom:1px solid var(--line)}
-  .sec-head{margin-bottom:42px}
-  .sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(27px,3.4vw,36px);letter-spacing:.01em}
+  /* 入场与滚动揭示 */
+  html.js .rise{opacity:0;transform:translateY(18px);transition:opacity .8s cubic-bezier(.22,.61,.36,1),transform .8s cubic-bezier(.22,.61,.36,1);transition-delay:var(--d,0s)}
+  html.js body.ready .rise{opacity:1;transform:none}
+  html.js .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;transition-delay:var(--d,0s)}
+  html.js .reveal.in{opacity:1;transform:none}
+
+  /* ===== 区块 ===== */
+  section.block{padding:78px 0;border-bottom:1px solid var(--line);scroll-margin-top:70px}
+  .sec-head{margin-bottom:38px}
+  .sec-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(27px,3.4vw,36px)}
   .sec-head p{color:var(--muted);font-size:15.5px;margin-top:10px}
 
   /* ===== 关于 ===== */
@@ -99,36 +127,45 @@
   .tags{display:flex;flex-wrap:wrap;gap:10px}
   .tag{font-size:13.5px;color:var(--brand-deep);background:var(--brand-soft);border:1px solid color-mix(in srgb,var(--brand) 22%,transparent);padding:6px 14px;border-radius:999px}
 
-  /* ===== 项目 ===== */
+  /* ===== 筛选 ===== */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px}
+  .fchip{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:14px;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:8px 16px;border-radius:999px;cursor:pointer;transition:.18s}
+  .fchip b{font-weight:600;font-size:12.5px;color:var(--faint);background:var(--brand-soft);border-radius:999px;padding:1px 8px;transition:.18s}
+  .fchip:hover{border-color:var(--brand);color:var(--brand)}
+  .fchip.active{background:var(--brand);border-color:var(--brand);color:var(--paper)}
+  .fchip.active b{background:color-mix(in srgb,var(--paper) 22%,transparent);color:var(--paper)}
+  .empty-state{display:none;color:var(--faint);font-size:15px;padding:40px 0;text-align:center}
+  .empty-state.show{display:block}
+
+  /* ===== 项目卡片 ===== */
   .project-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
-  .pcard{
-    position:relative;display:flex;flex-direction:column;cursor:pointer;
-    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-    padding:26px 26px 22px;min-width:0;
-    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
-  }
+  .pcard{position:relative;display:flex;flex-direction:column;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 26px 22px;min-width:0;transition:transform .22s ease,border-color .22s,box-shadow .22s,opacity .24s ease}
   .pcard::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:3px;border-radius:3px;background:var(--brand);opacity:0;transition:opacity .2s}
-  .pcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--brand) 45%,var(--line));box-shadow:0 14px 30px -18px color-mix(in srgb,var(--brand) 55%,transparent)}
+  .pcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--brand) 45%,var(--line));box-shadow:var(--lift)}
   .pcard:hover::before{opacity:1}
+  .pcard:active{transform:translateY(-1px) scale(.995)}
+  .pcard.hide{opacity:0;transform:scale(.96) translateY(8px)}
   .pcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-  .pcard-no{font-family:var(--serif);font-size:14px;color:var(--faint);font-weight:500}
-  .pcard-go{display:flex;color:var(--faint);transition:.18s}
-  .pcard:hover .pcard-go{color:var(--brand)}
+  .pcard-no{font-family:var(--serif);font-size:14px;color:var(--faint)}
+  .pcard-go{display:flex;color:var(--faint);transition:.22s}
+  .pcard:hover .pcard-go{color:var(--brand);transform:translate(2px,-2px)}
   .pcard-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
-  .pcard h3{font-family:var(--serif);font-weight:700;font-size:21px;letter-spacing:.01em}
+  .pcard h3{font-family:var(--serif);font-weight:700;font-size:21px}
   .pcard h3 a{transition:color .18s}
   .pcard h3 a:hover{color:var(--brand)}
-  .pcard:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
-  .pcard-repo{font-size:13px;color:var(--faint);margin-top:3px;word-break:break-all}
+  .pcard-repo{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--faint);margin-top:3px}
+  .pcard-repo .dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+  .pcard-repo .repo-txt{word-break:break-all;min-width:0}
   .pcard-desc{color:var(--muted);font-size:15px;margin-top:14px;flex:1}
   .pcard-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
   .pcard-tags{display:flex;flex-wrap:wrap;gap:7px}
   .pcard-tags .tag{font-size:12.5px;padding:4px 11px;background:transparent;border-color:var(--line);color:var(--muted)}
   .pcard-open{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:500;color:var(--brand);white-space:nowrap}
-  .pcard-open svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+  .pcard-open svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .18s}
+  .pcard-open:hover svg{transform:translateX(3px)}
 
   /* ===== 联系 ===== */
-  .contact{padding:84px 0;text-align:center}
+  .contact{padding:84px 0;text-align:center;scroll-margin-top:70px}
   .contact h2{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,40px)}
   .contact p{color:var(--muted);font-size:16.5px;margin:16px auto 0;max-width:32em}
   .contact-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:34px}
@@ -138,36 +175,53 @@
   .foot-inner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--faint)}
   .foot-inner .fl{font-family:var(--serif);font-weight:500;color:var(--muted)}
 
+  /* 回到顶部 */
+  #toTop{position:fixed;right:24px;bottom:24px;width:46px;height:46px;border-radius:50%;background:var(--brand);color:var(--paper);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(14px);pointer-events:none;transition:.25s;z-index:55;border:none;cursor:pointer;box-shadow:var(--lift)}
+  #toTop.show{opacity:1;transform:none;pointer-events:auto}
+  #toTop:hover{background:var(--brand-deep)}
+  #toTop svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}
+
   /* ===== 响应式 ===== */
   @media (max-width:860px){
-    .hero{padding:60px 0 56px}
+    .hero{padding:58px 0 54px}
     .hero-grid{grid-template-columns:1fr;gap:38px}
     .hero-card{order:2}
     .about-grid{grid-template-columns:1fr;gap:34px}
     .project-grid{grid-template-columns:1fr}
     .nav-links a.link{display:none}
   }
+  @media (max-width:560px){
+    .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+    .fchip{flex:none}
+  }
   @media (max-width:480px){
     .wrap{padding:0 18px}
     .hero-actions .btn{flex:1;justify-content:center}
     .icon-btn span.lbl{display:none}
+    #toTop{right:18px;bottom:18px}
   }
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
-    *{animation:none!important;transition:none!important}
+    html.js .rise,html.js .reveal{opacity:1!important;transform:none!important;transition:none!important}
+    *{animation:none!important}
   }
 </style>
 </head>
 <body>
+<div class="progress" id="progress"></div>
 
 <!-- ===== 导航 ===== -->
-<header class="nav">
+<header class="nav" id="nav">
   <div class="wrap nav-inner">
     <a class="nav-brand" id="navBrand" href="#top"></a>
     <nav class="nav-links">
-      <a class="link" href="#projects">项目</a>
-      <a class="link" href="#about">关于</a>
-      <a class="link" href="#contact">联系</a>
+      <a class="link" data-target="projects" href="#projects">项目</a>
+      <a class="link" data-target="about" href="#about">关于</a>
+      <a class="link" data-target="contact" href="#contact">联系</a>
+      <button class="icon-btn icon-only" id="themeToggle" aria-label="切换深色 / 浅色模式">
+        <svg class="i-moon" viewBox="0 0 24 24"><path d="M20 13.5A8 8 0 1 1 10.5 4 6.5 6.5 0 0 0 20 13.5z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+      </button>
       <a class="icon-btn" id="navGithub" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
         <span class="lbl">GitHub</span>
@@ -182,24 +236,24 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div class="hero-text">
-        <span class="hero-loc">
+        <span class="hero-loc rise" style="--d:.05s">
           <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
           <span id="heroLoc"></span>
         </span>
-        <h1 id="heroName"></h1>
-        <p class="hero-role" id="heroRole"></p>
-        <p class="hero-bio" id="heroBio"></p>
-        <div class="hero-actions">
+        <h1 class="rise" id="heroName" style="--d:.14s"></h1>
+        <p class="hero-role rise" id="heroRole" style="--d:.24s"></p>
+        <p class="hero-bio rise" id="heroBio" style="--d:.32s"></p>
+        <div class="hero-actions rise" style="--d:.4s">
           <a class="btn btn-primary" href="#projects">查看项目作品</a>
           <a class="btn btn-ghost" id="heroGithub" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
             GitHub 主页
           </a>
         </div>
-        <div class="hero-social" id="heroSocial"></div>
+        <div class="hero-social rise" id="heroSocial" style="--d:.48s"></div>
       </div>
 
-      <div class="hero-card" aria-hidden="true">
+      <div class="hero-card rise" style="--d:.26s" aria-hidden="true">
         <div class="hc-label">活动概览 · 示意</div>
         <div class="contrib">
           <i></i><i class="l1"></i><i></i><i class="l2"></i><i class="l1"></i><i></i><i class="l3"></i><i></i>
@@ -217,10 +271,10 @@
   <!-- ===== 关于 ===== -->
   <section class="block" id="about">
     <div class="wrap">
-      <div class="sec-head"><h2>关于我</h2></div>
+      <div class="sec-head reveal"><h2>关于我</h2></div>
       <div class="about-grid">
-        <div class="about-text" id="aboutText"></div>
-        <div>
+        <div class="about-text reveal" id="aboutText" style="--d:.05s"></div>
+        <div class="reveal" style="--d:.12s">
           <div class="skill-title">常用技术与工具</div>
           <div class="tags" id="skillTags"></div>
         </div>
@@ -231,20 +285,22 @@
   <!-- ===== 项目 ===== -->
   <section class="block" id="projects">
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head reveal">
         <h2>项目作品</h2>
         <p>点击任意卡片，即可在新标签页打开对应的 GitHub 仓库。</p>
       </div>
+      <div class="filters reveal" id="filters" role="tablist" aria-label="按语言筛选项目"></div>
       <div class="project-grid" id="projectGrid"></div>
+      <p class="empty-state" id="emptyState">该分类下暂无项目。</p>
     </div>
   </section>
 
   <!-- ===== 联系 ===== -->
   <section class="contact" id="contact">
     <div class="wrap">
-      <h2>保持联系</h2>
-      <p id="contactText"></p>
-      <div class="contact-actions">
+      <h2 class="reveal">保持联系</h2>
+      <p class="reveal" id="contactText" style="--d:.06s"></p>
+      <div class="contact-actions reveal" style="--d:.12s">
         <a class="btn btn-primary" id="contactEmail">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
           发送邮件
@@ -265,14 +321,18 @@
   </div>
 </footer>
 
+<button id="toTop" aria-label="回到顶部">
+  <svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</button>
+
 <script>
-/* ===== 配置区：只需修改下面这一段（CONFIG） ===== */
+/* ===== 配置区：只需修改 CONFIG ===== */
 const CONFIG = {
   githubUser: "Guzifeng0613",
   name: "Gu Tianyu",
   role: "Python / TypeScript 开发者",
   location: "中国 · 北京",
-  email: "",   // 填上你的邮箱，联系区和社交区才会显示邮件入口
+  email: "",
   bio: "北京化工大学在读，喜欢用 Python 和 TypeScript 写解决实际问题的小工具，内容涵盖数据处理、图像识别、移动应用与网页开发。",
   about: [
     "我是 Gu Tianyu，目前在北京化工大学学习。平时热衷于把学习和生活中重复、繁琐的事情写成工具：表格比对、数据筛选、二维码识别、文本生成都有涉及。",
@@ -280,88 +340,173 @@ const CONFIG = {
   ],
   skills: ["Python","TypeScript","Dart","JavaScript","HTML/CSS","Git","数据处理","Flutter","自动化","开源"],
   social: [
-    {type:"github",  label:"GitHub"}
+    {type:"github", label:"GitHub"}
     // 填好上方 email 后，取消下面这行注释即可显示邮箱图标
-    // {type:"email",   label:"邮箱"},
-    // {type:"blog",    label:"博客",   url:"https://你的博客地址"},
+    // {type:"email", label:"邮箱"},
+    // {type:"blog", label:"博客", url:"https://你的博客地址"},
     // {type:"twitter", label:"X / Twitter", url:"https://x.com/你的账号"}
   ],
-  // 每个项目一项：repo 是仓库名（决定跳转地址），demo 可留空，填了才显示“在线演示”
+  // lang 为项目主语言，用于上方筛选；repo 决定跳转地址；demo 可留空
   projects: [
-    {repo:"QR-code-recognition",   name:"QR Code Recognition",   desc:"基于 Python 的二维码识别项目，可对图像中的二维码进行定位与内容解析。", tags:["Python","二维码","图像识别"], demo:""},
-    {repo:"scholarships-tool",     name:"Scholarships Tool",     desc:"面向奖学金申请与评定流程的 Python 工具，用于处理相关数据和流程。", tags:["Python","自动化","奖学金"], demo:""},
-    {repo:"excel-comparison",      name:"Excel Comparison",      desc:"用于比对两份 Excel 表格差异的 Python 工具，快速找出数据变化。", tags:["Python","Excel","数据比对"], demo:""},
-    {repo:"novel-generation",      name:"Novel Generation",      desc:"基于 Python 的小说与文本生成实践，探索自动化文本创作。", tags:["Python","文本生成"], demo:""},
-    {repo:"second-classroom-buct", name:"Second Classroom BUCT", desc:"北京化工大学第二课堂相关的网页应用，使用 TypeScript 开发。", tags:["TypeScript","校园应用"], demo:""},
-    {repo:"drawpaper--freedom",    name:"Drawpaper Freedom",     desc:"一个自由绘图、壁纸创作方向的 TypeScript 项目。", tags:["TypeScript","创意绘图"], demo:""},
-    {repo:"reader-mobile-simple",  name:"Reader Mobile Simple",  desc:"使用 Dart 编写的轻量移动端阅读器应用。", tags:["Dart","Flutter","阅读器"], demo:""},
-    {repo:"fund-filter",           name:"Fund Filter",           desc:"用 Python 实现的基金数据筛选工具，按条件过滤出目标基金。", tags:["Python","数据筛选","基金"], demo:""}
+    {lang:"Python", repo:"QR-code-recognition",   name:"QR Code Recognition",   desc:"基于 Python 的二维码识别项目，可对图像中的二维码进行定位与内容解析。", tags:["Python","二维码","图像识别"], demo:""},
+    {lang:"Python", repo:"scholarships-tool",     name:"Scholarships Tool",     desc:"面向奖学金申请与评定流程的 Python 工具，用于处理相关数据和流程。", tags:["Python","自动化","奖学金"], demo:""},
+    {lang:"Python", repo:"excel-comparison",      name:"Excel Comparison",      desc:"用于比对两份 Excel 表格差异的 Python 工具，快速找出数据变化。", tags:["Python","Excel","数据比对"], demo:""},
+    {lang:"Python", repo:"novel-generation",      name:"Novel Generation",      desc:"基于 Python 的小说与文本生成实践，探索自动化文本创作。", tags:["Python","文本生成"], demo:""},
+    {lang:"TypeScript", repo:"second-classroom-buct", name:"Second Classroom BUCT", desc:"北京化工大学第二课堂相关的网页应用，使用 TypeScript 开发。", tags:["TypeScript","校园应用"], demo:""},
+    {lang:"TypeScript", repo:"drawpaper--freedom",    name:"Drawpaper Freedom",     desc:"一个自由绘图、壁纸创作方向的 TypeScript 项目。", tags:["TypeScript","创意绘图"], demo:""},
+    {lang:"Dart", repo:"reader-mobile-simple",  name:"Reader Mobile Simple",  desc:"使用 Dart 编写的轻量移动端阅读器应用。", tags:["Dart","Flutter","阅读器"], demo:""},
+    {lang:"Python", repo:"fund-filter",           name:"Fund Filter",           desc:"用 Python 实现的基金数据筛选工具，按条件过滤出目标基金。", tags:["Python","数据筛选","基金"], demo:""}
   ],
   contactText: "无论是项目合作、技术交流，还是只是想打个招呼，都欢迎在 GitHub 上找到我；填好邮箱后也可以直接给我写信。"
 };
-
-/* ===== 以下为渲染逻辑，一般无需修改 ===== */
+/* ===== 渲染与交互逻辑，一般无需修改 ===== */
+document.documentElement.classList.add("js");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const ICONS = {
   github:'<svg viewBox="0 0 24 24"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>',
   email:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>',
   blog:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 2.6 15.4 0 18M12 3c-2.6 2.6-2.6 15.4 0 18"/></svg>',
   twitter:'<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
 };
-const ARROW = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const ARROW='<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const LANGDOT={Python:"var(--lang-python)",TypeScript:"var(--lang-ts)",Dart:"var(--lang-dart)"};
 
-const githubUrl = "https://github.com/" + CONFIG.githubUser;
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const githubUrl="https://github.com/"+CONFIG.githubUser;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
-document.title = CONFIG.name + " · 个人主页";
-$("navBrand").innerHTML = esc(CONFIG.name) + "<span>.</span>";
-["navGithub","heroGithub","contactGithub"].forEach(id => $(id).href = githubUrl);
-$("heroLoc").textContent = CONFIG.location;
-$("heroName").textContent = CONFIG.name;
-$("heroRole").textContent = CONFIG.role;
-$("heroBio").textContent = CONFIG.bio;
-$("aboutText").innerHTML = CONFIG.about.map(p => "<p>" + esc(p) + "</p>").join("");
-$("skillTags").innerHTML = CONFIG.skills.map(s => '<span class="tag">' + esc(s) + "</span>").join("");
-$("hcCount").textContent = "收录 " + CONFIG.projects.length + " 个项目";
-$("contactText").textContent = CONFIG.contactText;
-if (CONFIG.email) { $("contactEmail").href = "mailto:" + CONFIG.email; }
-else { $("contactEmail").style.display = "none"; }
-$("footerName").textContent = "© " + new Date().getFullYear() + " " + CONFIG.name;
+document.title=CONFIG.name+" · 个人主页";
+$("navBrand").innerHTML=esc(CONFIG.name)+"<span>.</span>";
+["navGithub","heroGithub","contactGithub"].forEach(id=>$(id).href=githubUrl);
+$("heroLoc").textContent=CONFIG.location;
+$("heroName").textContent=CONFIG.name;
+$("heroRole").textContent=CONFIG.role;
+$("heroBio").textContent=CONFIG.bio;
+$("aboutText").innerHTML=CONFIG.about.map(p=>"<p>"+esc(p)+"</p>").join("");
+$("skillTags").innerHTML=CONFIG.skills.map(s=>'<span class="tag">'+esc(s)+"</span>").join("");
+$("hcCount").textContent="收录 "+CONFIG.projects.length+" 个项目";
+$("contactText").textContent=CONFIG.contactText;
+if(CONFIG.email){$("contactEmail").href="mailto:"+CONFIG.email;}else{$("contactEmail").style.display="none";}
+$("footerName").textContent="© "+new Date().getFullYear()+" "+CONFIG.name;
 
-$("heroSocial").innerHTML = CONFIG.social.map(s => {
-  let url = s.url;
-  if (s.type === "github") url = githubUrl;
-  if (s.type === "email") url = "mailto:" + CONFIG.email;
-  const ext = s.type === "email" ? "" : ' target="_blank" rel="noopener"';
-  return '<a href="' + url + '" aria-label="' + esc(s.label) + '"' + ext + ">" + ICONS[s.type] + "</a>";
+$("heroSocial").innerHTML=CONFIG.social.map(s=>{
+  let url=s.url;
+  if(s.type==="github")url=githubUrl;
+  if(s.type==="email")url="mailto:"+CONFIG.email;
+  const ext=s.type==="email"?"":' target="_blank" rel="noopener"';
+  return '<a href="'+url+'" aria-label="'+esc(s.label)+'"'+ext+">"+ICONS[s.type]+"</a>";
 }).join("");
 
-function projectCard(p, i){
-  const url = githubUrl + "/" + p.repo;
-  const no = String(i + 1).padStart(2, "0");
-  const tags = p.tags.map(t => '<span class="tag">' + esc(t) + "</span>").join("");
-  const demo = p.demo ? '<a class="pcard-open" href="' + p.demo + '" target="_blank" rel="noopener">在线演示 ' + ARROW + "</a>" : "";
-  const card = document.createElement("article");
-  card.className = "pcard";
-  card.tabIndex = 0;
-  card.setAttribute("role", "link");
-  card.setAttribute("aria-label", p.name + "，在 GitHub 打开");
-  card.innerHTML =
-    '<div class="pcard-top"><span class="pcard-no">' + no + '</span>' +
-    '<span class="pcard-go"><svg viewBox="0 0 24 24"><path d="M9 15 15 9M10 9h5v5"/></svg></span></div>' +
-    "<h3><a href=\"" + url + '" target="_blank" rel="noopener">' + esc(p.name) + "</a></h3>" +
-    '<div class="pcard-repo">' + esc(CONFIG.githubUser + "/" + p.repo) + "</div>" +
-    '<p class="pcard-desc">' + esc(p.desc) + "</p>" +
-    '<div class="pcard-foot"><div class="pcard-tags">' + tags + "</div>" +
-    '<div style="display:flex;gap:16px"><a class="pcard-open" href="' + url + '" target="_blank" rel="noopener">查看仓库 ' + ARROW + "</a>" + demo + "</div></div>";
-  const open = () => window.open(url, "_blank", "noopener");
-  card.addEventListener("click", e => { if (!e.target.closest("a")) open(); });
-  card.addEventListener("keydown", e => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
-  });
+/* 筛选 chips */
+const langs=[];
+CONFIG.projects.forEach(p=>{if(!langs.includes(p.lang))langs.push(p.lang);});
+const counts={all:CONFIG.projects.length};
+langs.forEach(l=>counts[l]=CONFIG.projects.filter(p=>p.lang===l).length);
+const tabs=[{lang:"all",label:"全部"}].concat(langs.map(l=>({lang:l,label:l})));
+$("filters").innerHTML=tabs.map((t,i)=>'<button class="fchip'+(i===0?" active":"")+'" data-lang="'+t.lang+'" role="tab" aria-selected="'+(i===0)+'">'+esc(t.label)+"<b>"+counts[t.lang]+"</b></button>").join("");
+
+/* 项目卡片 */
+const cards=new Map();
+function projectCard(p,i){
+  const url=githubUrl+"/"+p.repo;
+  const no=String(i+1).padStart(2,"0");
+  const tags=p.tags.map(t=>'<span class="tag">'+esc(t)+"</span>").join("");
+  const demo=p.demo?'<a class="pcard-open" href="'+p.demo+'" target="_blank" rel="noopener">在线演示 '+ARROW+"</a>":"";
+  const card=document.createElement("article");
+  card.className="pcard reveal";
+  card.style.setProperty("--d",((i%4)*0.06)+"s");
+  card.tabIndex=0; card.setAttribute("role","link");
+  card.setAttribute("aria-label",p.name+"，在 GitHub 打开");
+  card.innerHTML=
+    '<div class="pcard-top"><span class="pcard-no">'+no+'</span>'+
+    '<span class="pcard-go"><svg viewBox="0 0 24 24"><path d="M9 15 15 9M10 9h5v5"/></svg></span></div>'+
+    "<h3><a href=\""+url+'" target="_blank" rel="noopener">'+esc(p.name)+"</a></h3>"+
+    '<div class="pcard-repo"><span class="dot" style="--c:'+LANGDOT[p.lang]+'"></span><span class="repo-txt">'+esc(CONFIG.githubUser+"/"+p.repo)+"</span></div>"+
+    '<p class="pcard-desc">'+esc(p.desc)+"</p>"+
+    '<div class="pcard-foot"><div class="pcard-tags">'+tags+"</div>"+
+    '<div style="display:flex;gap:16px"><a class="pcard-open" href="'+url+'" target="_blank" rel="noopener">查看仓库 '+ARROW+"</a>"+demo+"</div></div>";
+  const open=()=>window.open(url,"_blank","noopener");
+  card.addEventListener("click",e=>{if(!e.target.closest("a"))open();});
+  card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});
   return card;
 }
-CONFIG.projects.forEach((p, i) => $("projectGrid").appendChild(projectCard(p, i)));
+CONFIG.projects.forEach((p,i)=>{const c=projectCard(p,i);cards.set(p.repo,c);$("projectGrid").appendChild(c);});
+
+/* 筛选逻辑 */
+const emptyState=$("emptyState");
+function applyFilter(lang){
+  let shown=0;
+  CONFIG.projects.forEach(p=>{
+    const el=cards.get(p.repo);
+    const show=lang==="all"||p.lang===lang;
+    if(show){
+      shown++;
+      el.classList.add("in");
+      el.style.display="";
+      requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove("hide")));
+    }else{
+      el.classList.add("hide");
+      setTimeout(()=>{if(el.classList.contains("hide"))el.style.display="none";},240);
+    }
+  });
+  emptyState.classList.toggle("show",shown===0);
+}
+$("filters").addEventListener("click",e=>{
+  const btn=e.target.closest(".fchip");
+  if(!btn)return;
+  $("filters").querySelectorAll(".fchip").forEach(b=>{
+    const on=b===btn;
+    b.classList.toggle("active",on);
+    b.setAttribute("aria-selected",on);
+  });
+  applyFilter(btn.dataset.lang);
+});
+
+/* 主题切换 */
+const root=document.documentElement;
+$("themeToggle").addEventListener("click",()=>{
+  const next=root.dataset.theme==="dark"?"light":"dark";
+  root.dataset.theme=next;
+  try{localStorage.setItem("theme",next);}catch(e){}
+});
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",e=>{
+  let stored;try{stored=localStorage.getItem("theme");}catch(_){}
+  if(stored!=="light"&&stored!=="dark")root.dataset.theme=e.matches?"dark":"light";
+});
+
+/* 滚动揭示 */
+const io=new IntersectionObserver(es=>{
+  es.forEach(en=>{if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target);}});
+},{rootMargin:"0px 0px -7% 0px",threshold:.1});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+
+/* scrollspy */
+const spy=new IntersectionObserver(es=>{
+  es.forEach(en=>{
+    if(en.isIntersecting){
+      document.querySelectorAll(".nav-links a.link").forEach(a=>a.classList.toggle("active",a.dataset.target===en.target.id));
+    }
+  });
+},{rootMargin:"-45% 0px -50% 0px"});
+["about","projects","contact"].forEach(id=>spy.observe(document.getElementById(id)));
+
+/* 导航态 / 进度条 / 回到顶部 */
+const nav=$("nav"),prog=$("progress"),toTop=$("toTop");
+let ticking=false;
+function onScroll(){
+  const y=window.scrollY;
+  nav.classList.toggle("scrolled",y>8);
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  prog.style.width=(h>0?y/h*100:0)+"%";
+  toTop.classList.toggle("show",y>640);
+  ticking=false;
+}
+window.addEventListener("scroll",()=>{if(!ticking){ticking=true;requestAnimationFrame(onScroll);}},{passive:true});
+onScroll();
+toTop.addEventListener("click",()=>window.scrollTo({top:0,behavior:reduce?"auto":"smooth"}));
+
+/* 触发 Hero 入场 */
+requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.add("ready")));
 </script>
 </body>
 </html>
