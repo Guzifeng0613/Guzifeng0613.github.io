@@ -54,6 +54,18 @@
   ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--brand) 38%,var(--line));border-radius:8px;border:3px solid var(--paper)}
   :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
 
+  /* 点击涟漪与按压反馈 */
+  .btn,.fchip,.icon-btn,#toTop,.pcard{position:relative;overflow:hidden}
+  .ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.18;transform:scale(0);pointer-events:none;animation:ripple .58s ease-out forwards}
+  @keyframes ripple{to{transform:scale(1);opacity:0}}
+  .icon-btn:active{transform:scale(.92)}
+  .fchip:active{transform:scale(.95)}
+  #toTop:active{transform:scale(.9)}
+
+  /* 主题圆形扩散（View Transitions） */
+  ::view-transition-old(root){animation:none;z-index:1}
+  ::view-transition-new(root){animation:none;z-index:2}
+
   /* 阅读进度 */
   .progress{position:fixed;top:0;left:0;height:2.5px;width:0;z-index:70;background:linear-gradient(90deg,var(--brand),var(--accent))}
 
@@ -72,7 +84,7 @@
   .icon-btn{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);border:1px solid var(--line);padding:7px 13px;border-radius:999px;background:var(--surface);transition:.18s;cursor:pointer;font-family:inherit}
   .icon-btn:hover{border-color:var(--brand);color:var(--brand)}
   .icon-btn svg{width:17px;height:17px;fill:currentColor}
-  .icon-only{padding:8px;border-radius:50%}
+  .icon-only{width:40px;height:40px;padding:0;border-radius:50%;justify-content:center}
   .icon-only svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
   [data-theme="light"] .i-sun{display:none}
   [data-theme="dark"] .i-moon{display:none}
@@ -128,11 +140,14 @@
   .tag{font-size:13.5px;color:var(--brand-deep);background:var(--brand-soft);border:1px solid color-mix(in srgb,var(--brand) 22%,transparent);padding:6px 14px;border-radius:999px}
 
   /* ===== 筛选 ===== */
-  .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px}
+  .filters-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:30px}
+  .filters{display:flex;flex-wrap:wrap;gap:10px}
+  .result-count{font-size:13.5px;color:var(--faint);white-space:nowrap}
+  .result-count b{display:inline-block;font-family:var(--serif);font-weight:700;color:var(--brand);font-size:15px}
   .fchip{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:14px;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:8px 16px;border-radius:999px;cursor:pointer;transition:.18s}
   .fchip b{font-weight:600;font-size:12.5px;color:var(--faint);background:var(--brand-soft);border-radius:999px;padding:1px 8px;transition:.18s}
   .fchip:hover{border-color:var(--brand);color:var(--brand)}
-  .fchip.active{background:var(--brand);border-color:var(--brand);color:var(--paper)}
+  .fchip.active{background:var(--brand);border-color:var(--brand);color:var(--paper);transform:scale(1.05)}
   .fchip.active b{background:color-mix(in srgb,var(--paper) 22%,transparent);color:var(--paper)}
   .empty-state{display:none;color:var(--faint);font-size:15px;padding:40px 0;text-align:center}
   .empty-state.show{display:block}
@@ -141,10 +156,13 @@
   .project-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
   .pcard{position:relative;display:flex;flex-direction:column;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 26px 22px;min-width:0;transition:transform .22s ease,border-color .22s,box-shadow .22s,opacity .24s ease}
   .pcard::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:3px;border-radius:3px;background:var(--brand);opacity:0;transition:opacity .2s}
-  .pcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--brand) 45%,var(--line));box-shadow:var(--lift)}
+  .pcard:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px);border-color:color-mix(in srgb,var(--brand) 45%,var(--line));box-shadow:var(--lift)}
   .pcard:hover::before{opacity:1}
-  .pcard:active{transform:translateY(-1px) scale(.995)}
+  .pcard:active{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-1px) scale(.995)}
   .pcard.hide{opacity:0;transform:scale(.96) translateY(8px)}
+  .card-glow{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .25s ease;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--brand) 15%,transparent),transparent 62%)}
+  .pcard:hover .card-glow{opacity:1}
+  @media (hover:none){.card-glow{display:none}}
   .pcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .pcard-no{font-family:var(--serif);font-size:14px;color:var(--faint)}
   .pcard-go{display:flex;color:var(--faint);transition:.22s}
@@ -191,8 +209,9 @@
     .nav-links a.link{display:none}
   }
   @media (max-width:560px){
-    .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
-    .fchip{flex:none}
+    .filters-bar{flex-direction:column;align-items:flex-start}
+    .filters{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+    .fchip{flex:none;min-height:44px}
   }
   @media (max-width:480px){
     .wrap{padding:0 18px}
@@ -203,6 +222,9 @@
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
     html.js .rise,html.js .reveal{opacity:1!important;transform:none!important;transition:none!important}
+    .pcard:hover{transform:translateY(-3px)}
+    .pcard:active{transform:scale(.995)}
+    .card-glow{display:none}
     *{animation:none!important}
   }
 </style>
@@ -289,7 +311,10 @@
         <h2>项目作品</h2>
         <p>点击任意卡片，即可在新标签页打开对应的 GitHub 仓库。</p>
       </div>
-      <div class="filters reveal" id="filters" role="tablist" aria-label="按语言筛选项目"></div>
+      <div class="filters-bar reveal">
+        <div class="filters" id="filters" role="tablist" aria-label="按语言筛选项目"></div>
+        <span class="result-count">共 <b id="resultNum">8</b> 个项目</span>
+      </div>
       <div class="project-grid" id="projectGrid"></div>
       <p class="empty-state" id="emptyState">该分类下暂无项目。</p>
     </div>
@@ -362,6 +387,7 @@ const CONFIG = {
 /* ===== 渲染与交互逻辑，一般无需修改 ===== */
 document.documentElement.classList.add("js");
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const finePointer = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
 const ICONS = {
   github:'<svg viewBox="0 0 24 24"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>',
   email:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>',
@@ -418,6 +444,7 @@ function projectCard(p,i){
   card.tabIndex=0; card.setAttribute("role","link");
   card.setAttribute("aria-label",p.name+"，在 GitHub 打开");
   card.innerHTML=
+    '<span class="card-glow" aria-hidden="true"></span>'+
     '<div class="pcard-top"><span class="pcard-no">'+no+'</span>'+
     '<span class="pcard-go"><svg viewBox="0 0 24 24"><path d="M9 15 15 9M10 9h5v5"/></svg></span></div>'+
     "<h3><a href=\""+url+'" target="_blank" rel="noopener">'+esc(p.name)+"</a></h3>"+
@@ -428,12 +455,30 @@ function projectCard(p,i){
   const open=()=>window.open(url,"_blank","noopener");
   card.addEventListener("click",e=>{if(!e.target.closest("a"))open();});
   card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});
+  if(finePointer){
+    card.addEventListener("pointermove",ev=>{
+      const rr=card.getBoundingClientRect();
+      const nx=(ev.clientX-rr.left)/rr.width, ny=(ev.clientY-rr.top)/rr.height;
+      card.style.setProperty("--mx",(ev.clientX-rr.left)+"px");
+      card.style.setProperty("--my",(ev.clientY-rr.top)+"px");
+      card.style.setProperty("--rx",((0.5-ny)*5).toFixed(2)+"deg");
+      card.style.setProperty("--ry",((nx-0.5)*5).toFixed(2)+"deg");
+    });
+    card.addEventListener("pointerleave",()=>{card.style.setProperty("--rx","0deg");card.style.setProperty("--ry","0deg");});
+  }
   return card;
 }
 CONFIG.projects.forEach((p,i)=>{const c=projectCard(p,i);cards.set(p.repo,c);$("projectGrid").appendChild(c);});
 
 /* 筛选逻辑 */
 const emptyState=$("emptyState");
+function setResultNum(n){
+  const el=$("resultNum");
+  if(!el||el.textContent===String(n))return;
+  if(reduce){el.textContent=n;return;}
+  const out=el.animate([{opacity:1,transform:"translateY(0)"},{opacity:0,transform:"translateY(8px)"}],{duration:110,easing:"ease-in",fill:"forwards"});
+  out.onfinish=()=>{el.textContent=n;el.animate([{opacity:0,transform:"translateY(-8px)"},{opacity:1,transform:"translateY(0)"}],{duration:150,easing:"ease-out"});};
+}
 function applyFilter(lang){
   let shown=0;
   CONFIG.projects.forEach(p=>{
@@ -450,6 +495,7 @@ function applyFilter(lang){
     }
   });
   emptyState.classList.toggle("show",shown===0);
+  setResultNum(shown);
 }
 $("filters").addEventListener("click",e=>{
   const btn=e.target.closest(".fchip");
@@ -464,10 +510,19 @@ $("filters").addEventListener("click",e=>{
 
 /* 主题切换 */
 const root=document.documentElement;
-$("themeToggle").addEventListener("click",()=>{
+$("themeToggle").addEventListener("click",e=>{
   const next=root.dataset.theme==="dark"?"light":"dark";
-  root.dataset.theme=next;
-  try{localStorage.setItem("theme",next);}catch(e){}
+  const apply=()=>{root.dataset.theme=next;try{localStorage.setItem("theme",next);}catch(err){}};
+  if(reduce||!document.startViewTransition){apply();return;}
+  const x=e.clientX||window.innerWidth/2, y=e.clientY||window.innerHeight/2;
+  const radius=Math.hypot(Math.max(x,window.innerWidth-x),Math.max(y,window.innerHeight-y));
+  const vt=document.startViewTransition(apply);
+  vt.ready.then(()=>{
+    document.documentElement.animate(
+      {clipPath:["circle(0px at "+x+"px "+y+"px)","circle("+radius+"px at "+x+"px "+y+"px)"]},
+      {duration:520,easing:"cubic-bezier(0.22,1,0.36,1)",pseudoElement:"::view-transition-new(root)"}
+    );
+  }).catch(()=>{});
 });
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",e=>{
   let stored;try{stored=localStorage.getItem("theme");}catch(_){}
@@ -504,6 +559,25 @@ function onScroll(){
 window.addEventListener("scroll",()=>{if(!ticking){ticking=true;requestAnimationFrame(onScroll);}},{passive:true});
 onScroll();
 toTop.addEventListener("click",()=>window.scrollTo({top:0,behavior:reduce?"auto":"smooth"}));
+
+/* 全局点击涟漪：按钮 / 卡片 / 标签 / 图标 / 回到顶部，均从触点扩散 */
+const RIPPLE_SEL=".btn,.fchip,.pcard,.icon-btn,#toTop";
+document.addEventListener("click",ev=>{
+  if(reduce)return;
+  const host=ev.target.closest?ev.target.closest(RIPPLE_SEL):null;
+  if(!host)return;
+  let cx,cy;
+  if(ev.detail===0||(ev.clientX===0&&ev.clientY===0)){cx=host.clientWidth/2;cy=host.clientHeight/2;}
+  else{const r=host.getBoundingClientRect();cx=ev.clientX-r.left;cy=ev.clientY-r.top;}
+  const size=Math.max(host.offsetWidth,host.offsetHeight)*1.05;
+  const rip=document.createElement("span");
+  rip.className="ripple";
+  rip.style.width=rip.style.height=size+"px";
+  rip.style.left=(cx-size/2)+"px";
+  rip.style.top=(cy-size/2)+"px";
+  host.appendChild(rip);
+  rip.addEventListener("animationend",()=>rip.remove());
+});
 
 /* 触发 Hero 入场 */
 requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.add("ready")));
