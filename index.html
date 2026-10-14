@@ -268,34 +268,36 @@
 <script>
 /* ===== 配置区：只需修改下面这一段（CONFIG） ===== */
 const CONFIG = {
-  githubUser: "your-github-username",   // 你的 GitHub 用户名
-  name: "你的名字",
-  role: "前端开发工程师 / 开源爱好者",
+  githubUser: "Guzifeng0613",
+  name: "Gu Tianyu",
+  role: "Python / TypeScript 开发者",
   location: "中国 · 北京",
-  email: "you@example.com",
-  bio: "这里用一两句话介绍你自己：你主要做什么、关注哪些方向、希望和什么样的人交流。访客读完就知道你是谁。",
+  email: "",   // 填上你的邮箱，联系区和社交区才会显示邮件入口
+  bio: "北京化工大学在读，喜欢用 Python 和 TypeScript 写解决实际问题的小工具，内容涵盖数据处理、图像识别、移动应用与网页开发。",
   about: [
-    "这里写第一段自我介绍：你的背景、现在的方向，以及平时主要用哪些技术解决什么问题。",
-    "这里写第二段：你在开源或个人项目里关心的事、业余在做的探索，或者你希望通过这个主页结识什么样的伙伴。"
+    "我是 Gu Tianyu，目前在北京化工大学学习。平时热衷于把学习和生活中重复、繁琐的事情写成工具：表格比对、数据筛选、二维码识别、文本生成都有涉及。",
+    "我主要使用 Python，也用 TypeScript 和 Dart 做网页与移动端开发，并在 GitHub 上持续更新这些项目。欢迎交流、提 Issue，或一起完善它们。"
   ],
-  skills: ["JavaScript","TypeScript","Vue","React","Node.js","Python","HTML/CSS","Git","Docker","MySQL"],
-  // 想加社交链接，照着 blog / twitter 的格式取消注释即可；github 和邮箱会自动填好
+  skills: ["Python","TypeScript","Dart","JavaScript","HTML/CSS","Git","数据处理","Flutter","自动化","开源"],
   social: [
-    {type:"github",  label:"GitHub"},
-    {type:"email",   label:"邮箱"},
+    {type:"github",  label:"GitHub"}
+    // 填好上方 email 后，取消下面这行注释即可显示邮箱图标
+    // {type:"email",   label:"邮箱"},
     // {type:"blog",    label:"博客",   url:"https://你的博客地址"},
     // {type:"twitter", label:"X / Twitter", url:"https://x.com/你的账号"}
   ],
   // 每个项目一项：repo 是仓库名（决定跳转地址），demo 可留空，填了才显示“在线演示”
   projects: [
-    {repo:"project-alpha", name:"项目 Alpha", desc:"用一句话说明这个项目解决了什么问题、你负责了什么、有哪些技术亮点。", tags:["JavaScript","Vue 3","REST API"], demo:""},
-    {repo:"project-beta",  name:"项目 Beta",  desc:"简要描述项目的用途与价值，让访客不用点进去也能大致了解它。", tags:["TypeScript","Node.js","Express"], demo:""},
-    {repo:"project-gamma", name:"项目 Gamma", desc:"这里可以写关键成果，例如性能提升、数据规模，或它和同类工具的不同。", tags:["Python","Pandas","数据可视化"], demo:""},
-    {repo:"project-delta", name:"项目 Delta", desc:"如果项目有在线地址，在下方 demo 字段填上，卡片上会出现“在线演示”入口。", tags:["React","Vite","Tailwind"], demo:""},
-    {repo:"project-epsilon", name:"项目 Epsilon", desc:"保持每条描述长度相近，整组卡片看起来会更整齐、更专业。", tags:["Java","Spring Boot","MySQL"], demo:""},
-    {repo:"project-zeta",  name:"项目 Zeta",  desc:"不需要的项目直接删掉这一整行；想新增就复制任意一段并修改内容。", tags:["Go","微服务","Docker"], demo:""}
+    {repo:"QR-code-recognition",   name:"QR Code Recognition",   desc:"基于 Python 的二维码识别项目，可对图像中的二维码进行定位与内容解析。", tags:["Python","二维码","图像识别"], demo:""},
+    {repo:"scholarships-tool",     name:"Scholarships Tool",     desc:"面向奖学金申请与评定流程的 Python 工具，用于处理相关数据和流程。", tags:["Python","自动化","奖学金"], demo:""},
+    {repo:"excel-comparison",      name:"Excel Comparison",      desc:"用于比对两份 Excel 表格差异的 Python 工具，快速找出数据变化。", tags:["Python","Excel","数据比对"], demo:""},
+    {repo:"novel-generation",      name:"Novel Generation",      desc:"基于 Python 的小说与文本生成实践，探索自动化文本创作。", tags:["Python","文本生成"], demo:""},
+    {repo:"second-classroom-buct", name:"Second Classroom BUCT", desc:"北京化工大学第二课堂相关的网页应用，使用 TypeScript 开发。", tags:["TypeScript","校园应用"], demo:""},
+    {repo:"drawpaper--freedom",    name:"Drawpaper Freedom",     desc:"一个自由绘图、壁纸创作方向的 TypeScript 项目。", tags:["TypeScript","创意绘图"], demo:""},
+    {repo:"reader-mobile-simple",  name:"Reader Mobile Simple",  desc:"使用 Dart 编写的轻量移动端阅读器应用。", tags:["Dart","Flutter","阅读器"], demo:""},
+    {repo:"fund-filter",           name:"Fund Filter",           desc:"用 Python 实现的基金数据筛选工具，按条件过滤出目标基金。", tags:["Python","数据筛选","基金"], demo:""}
   ],
-  contactText: "无论是项目合作、技术交流，还是只是想打个招呼，都欢迎给我写邮件，或直接在 GitHub 上找到我。"
+  contactText: "无论是项目合作、技术交流，还是只是想打个招呼，都欢迎在 GitHub 上找到我；填好邮箱后也可以直接给我写信。"
 };
 
 /* ===== 以下为渲染逻辑，一般无需修改 ===== */
@@ -322,7 +324,8 @@ $("aboutText").innerHTML = CONFIG.about.map(p => "<p>" + esc(p) + "</p>").join("
 $("skillTags").innerHTML = CONFIG.skills.map(s => '<span class="tag">' + esc(s) + "</span>").join("");
 $("hcCount").textContent = "收录 " + CONFIG.projects.length + " 个项目";
 $("contactText").textContent = CONFIG.contactText;
-$("contactEmail").href = "mailto:" + CONFIG.email;
+if (CONFIG.email) { $("contactEmail").href = "mailto:" + CONFIG.email; }
+else { $("contactEmail").style.display = "none"; }
 $("footerName").textContent = "© " + new Date().getFullYear() + " " + CONFIG.name;
 
 $("heroSocial").innerHTML = CONFIG.social.map(s => {
@@ -362,4 +365,3 @@ CONFIG.projects.forEach((p, i) => $("projectGrid").appendChild(projectCard(p, i)
 </script>
 </body>
 </html>
-<!-- （注：内容由AI生成） -->
