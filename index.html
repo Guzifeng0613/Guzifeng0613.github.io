@@ -490,23 +490,76 @@ function setResultNum(n){
     inn.onfinish=()=>{inn.cancel();out.cancel();}; // 动画结束后回到基础 opacity:1，数字不再消失
   };
 }
+let pendingFilter=null;
 function applyFilter(lang){
-  let shown=0;
-  CONFIG.projects.forEach(p=>{
-    const el=cards.get(p.repo);
-    const show=lang==="all"||p.lang===lang;
-    if(show){
-      shown++;
-      el.classList.add("in");
-      el.style.display="";
-      requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove("hide")));
-    }else{
-      el.classList.add("hide");
-      setTimeout(()=>{if(el.classList.contains("hide"))el.style.display="none";},240);
+  clearTimeout(pendingFilter);
+  // 取消上一轮未完成的过渡，连续点击时从干净状态开始
+  document.querySelectorAll(".pcard").forEach(el=>el.getAnimations().forEach(a=>{if(a._filter)a.cancel();}));
+  const firstRects=new Map();
+  const nextShow=new Map();
+  cards.forEach((el,repo)=>{
+    const langOf=CONFIG.projects.find(p=>p.repo===repo).lang;
+    if(el.style.display!=="none")firstRects.set(repo,el.getBoundingClientRect());
+    nextShow.set(repo,lang==="all"||langOf===lang);
+  });
+  // 阶段 A：要离开的卡片先收缩淡出（仍占位）
+  const leaving=[];
+  cards.forEach((el,repo)=>{
+    if(firstRects.has(repo)&&!nextShow.get(repo)){
+      leaving.push(el);
+      if(!reduce){
+        const a=el.animate(
+          [{opacity:1,transform:"scale(1) translateY(0)"},{opacity:0,transform:"scale(.92) translateY(10px)"}],
+          {duration:180,easing:"cubic-bezier(.4,0,.2,1)",fill:"forwards"}
+        );
+        a._filter=true;
+      }
     }
   });
-  emptyState.classList.toggle("show",shown===0);
-  setResultNum(shown);
+  // 阶段 B：收起占位 → 网格补位滑动（FLIP）→ 新卡片依次展开
+  const finish=()=>{
+    let shown=0; const moving=[]; const entering=[];
+    cards.forEach((el,repo)=>{
+      const show=nextShow.get(repo);
+      const wasVisible=firstRects.has(repo);
+      if(show){
+        shown++;
+        el.classList.add("in");
+        el.classList.remove("hide");
+        el.style.display="";
+        if(wasVisible){
+          const last=el.getBoundingClientRect(), first=firstRects.get(repo);
+          const dx=first.left-last.left, dy=first.top-last.top;
+          if(Math.abs(dx)>0.5||Math.abs(dy)>0.5)moving.push({el,dx,dy});
+        }else{
+          entering.push(el);
+        }
+      }else{
+        el.style.display="none";
+        el.getAnimations().forEach(a=>{if(a._filter)a.cancel();});
+      }
+    });
+    if(!reduce){
+      moving.forEach(({el,dx,dy})=>{
+        const a=el.animate(
+          [{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"translate(0,0)"}],
+          {duration:300,easing:"cubic-bezier(.22,1,.36,1)"}
+        );
+        a._filter=true;
+      });
+      entering.forEach((el,i)=>{
+        const a=el.animate(
+          [{opacity:0,transform:"scale(.9) translateY(16px)"},{opacity:1,transform:"scale(1) translateY(0)"}],
+          {duration:330,delay:Math.min(i*45,240),easing:"cubic-bezier(.22,1,.36,1)",fill:"both"}
+        );
+        a._filter=true;
+        a.onfinish=()=>a.cancel();
+      });
+    }
+    emptyState.classList.toggle("show",shown===0);
+    setResultNum(shown);
+  };
+  if(leaving.length&&!reduce){pendingFilter=setTimeout(finish,180);}else{finish();}
 }
 $("filters").addEventListener("click",e=>{
   const btn=e.target.closest(".fchip");
