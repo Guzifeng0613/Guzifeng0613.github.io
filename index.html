@@ -143,7 +143,7 @@
   .filters-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:30px}
   .filters{display:flex;flex-wrap:wrap;gap:10px}
   .result-count{font-size:13.5px;color:var(--faint);white-space:nowrap}
-  .result-count b{display:inline-block;font-family:var(--serif);font-weight:700;color:var(--brand);font-size:15px}
+  .result-count b{display:inline-block;min-width:1.15em;text-align:center;font-family:var(--serif);font-weight:700;color:var(--brand);font-size:15px}
   .fchip{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:14px;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:8px 16px;border-radius:999px;cursor:pointer;transition:.18s}
   .fchip b{font-weight:600;font-size:12.5px;color:var(--faint);background:var(--brand-soft);border-radius:999px;padding:1px 8px;transition:.18s}
   .fchip:hover{border-color:var(--brand);color:var(--brand)}
@@ -210,7 +210,7 @@
   }
   @media (max-width:560px){
     .filters-bar{flex-direction:column;align-items:flex-start}
-    .filters{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+    .filters{flex-wrap:nowrap;overflow-x:auto;width:100%;padding:3px 2px 8px;-webkit-overflow-scrolling:touch}
     .fchip{flex:none;min-height:44px}
   }
   @media (max-width:480px){
@@ -476,8 +476,19 @@ function setResultNum(n){
   const el=$("resultNum");
   if(!el||el.textContent===String(n))return;
   if(reduce){el.textContent=n;return;}
-  const out=el.animate([{opacity:1,transform:"translateY(0)"},{opacity:0,transform:"translateY(8px)"}],{duration:110,easing:"ease-in",fill:"forwards"});
-  out.onfinish=()=>{el.textContent=n;el.animate([{opacity:0,transform:"translateY(-8px)"},{opacity:1,transform:"translateY(0)"}],{duration:150,easing:"ease-out"});};
+  el.getAnimations().forEach(a=>a.cancel()); // 清理上一轮残留，避免终态被锁在透明
+  const out=el.animate(
+    [{opacity:1,transform:"translateY(0)"},{opacity:0,transform:"translateY(8px)"}],
+    {duration:110,easing:"ease-in",fill:"forwards"}
+  );
+  out.onfinish=()=>{
+    el.textContent=n;
+    const inn=el.animate(
+      [{opacity:0,transform:"translateY(-8px)"},{opacity:1,transform:"translateY(0)"}],
+      {duration:160,easing:"ease-out",fill:"both"}
+    );
+    inn.onfinish=()=>{inn.cancel();out.cancel();}; // 动画结束后回到基础 opacity:1，数字不再消失
+  };
 }
 function applyFilter(lang){
   let shown=0;
