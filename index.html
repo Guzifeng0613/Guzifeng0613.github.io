@@ -26,7 +26,7 @@
     --c0:#DCE1DA; --c1:#BFD6CF; --c2:#7FB3A8; --c3:#0E5C52;
     --nav-bg:color-mix(in srgb,var(--paper) 86%,transparent);
     --lift:0 16px 34px -20px rgba(14,92,82,.55);
-    --lang-python:#3776AB; --lang-ts:#3178C6; --lang-dart:#BE6A2B; --lang-java:#B07219;
+    --lang-python:#3776AB; --lang-ts:#3178C6; --lang-dart:#BE6A2B; --lang-java:#B07219; --lang-html:#E34C26;
     --radius:14px; --maxw:1080px;
     --serif:"Noto Serif SC","Songti SC","STSong",Georgia,serif;
     --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
@@ -40,7 +40,7 @@
     --c0:#26302C; --c1:#2E4A44; --c2:#3E736A; --c3:#61B9AA;
     --nav-bg:color-mix(in srgb,var(--paper) 88%,transparent);
     --lift:0 18px 38px -18px rgba(0,0,0,.65);
-    --lang-python:#6FA8DC; --lang-ts:#79AEE8; --lang-dart:#DB8C52; --lang-java:#D0924F;
+    --lang-python:#6FA8DC; --lang-ts:#79AEE8; --lang-dart:#DB8C52; --lang-java:#D0924F; --lang-html:#F0785A;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -313,7 +313,7 @@
       </div>
       <div class="filters-bar reveal">
         <div class="filters" id="filters" role="tablist" aria-label="按语言筛选项目"></div>
-        <span class="result-count">共 <b id="resultNum">12</b> 个项目</span>
+        <span class="result-count">共 <b id="resultNum">13</b> 个项目</span>
       </div>
       <div class="project-grid" id="projectGrid"></div>
       <p class="empty-state" id="emptyState">该分类下暂无项目。</p>
@@ -384,7 +384,8 @@ const CONFIG = {
     {lang:"TypeScript", repo:"drawpaper--freedom", name:"Drawpaper Freedom", desc:"一个自由绘图、壁纸创作方向的 TypeScript 项目。", tags:["TypeScript","创意绘图"], demo:""},
     {lang:"Python", repo:"QR-code-recognition", name:"QR Code Recognition", desc:"基于 Python 的二维码识别项目，可对图像中的二维码进行定位与内容解析。", tags:["Python","二维码","图像识别"], demo:""},
     {lang:"TypeScript", repo:"second-classroom-buct", name:"Second Classroom BUCT", desc:"北京化工大学第二课堂相关的网页应用，使用 TypeScript 开发。", tags:["TypeScript","校园应用"], demo:""},
-    {lang:"Python", repo:"fund-filter", name:"Fund Filter", desc:"用 Python 实现的基金数据筛选工具，按条件过滤出目标基金。", tags:["Python","数据筛选","基金"], demo:""}
+    {lang:"Python", repo:"fund-filter", name:"Fund Filter", desc:"用 Python 实现的基金数据筛选工具，按条件过滤出目标基金。", tags:["Python","数据筛选","基金"], demo:""},
+    {lang:"HTML", repo:"paper-note", name:"Paper Note", desc:"纯本地、离线优先的安卓便签 App「纸片」，单页 WebView 承载内联 HTML/CSS/JS，Java 原生层提供私有存储、拍照、截图导出与网盘同步等能力，数据全部保存在本机、无需账号联网。", tags:["HTML","Android","便签"], demo:""}
   ],
   contactText: "无论是项目合作、技术交流，还是只是想打个招呼，都欢迎在 GitHub 上找到我；填好邮箱后也可以直接给我写信。"
 };
@@ -399,7 +400,7 @@ const ICONS = {
   twitter:'<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
 };
 const ARROW='<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-const LANGDOT={Python:"var(--lang-python)",TypeScript:"var(--lang-ts)",Dart:"var(--lang-dart)",Java:"var(--lang-java)"};
+const LANGDOT={Python:"var(--lang-python)",TypeScript:"var(--lang-ts)",Dart:"var(--lang-dart)",Java:"var(--lang-java)",HTML:"var(--lang-html)"};
 
 const githubUrl="https://github.com/"+CONFIG.githubUser;
 const $=id=>document.getElementById(id);
