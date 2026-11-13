@@ -26,7 +26,7 @@
     --c0:#DCE1DA; --c1:#BFD6CF; --c2:#7FB3A8; --c3:#0E5C52;
     --nav-bg:color-mix(in srgb,var(--paper) 86%,transparent);
     --lift:0 16px 34px -20px rgba(14,92,82,.55);
-    --lang-python:#3776AB; --lang-ts:#3178C6; --lang-dart:#BE6A2B;
+    --lang-python:#3776AB; --lang-ts:#3178C6; --lang-dart:#BE6A2B; --lang-java:#B07219;
     --radius:14px; --maxw:1080px;
     --serif:"Noto Serif SC","Songti SC","STSong",Georgia,serif;
     --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
@@ -40,7 +40,7 @@
     --c0:#26302C; --c1:#2E4A44; --c2:#3E736A; --c3:#61B9AA;
     --nav-bg:color-mix(in srgb,var(--paper) 88%,transparent);
     --lift:0 18px 38px -18px rgba(0,0,0,.65);
-    --lang-python:#6FA8DC; --lang-ts:#79AEE8; --lang-dart:#DB8C52;
+    --lang-python:#6FA8DC; --lang-ts:#79AEE8; --lang-dart:#DB8C52; --lang-java:#D0924F;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -313,7 +313,7 @@
       </div>
       <div class="filters-bar reveal">
         <div class="filters" id="filters" role="tablist" aria-label="按语言筛选项目"></div>
-        <span class="result-count">共 <b id="resultNum">8</b> 个项目</span>
+        <span class="result-count">共 <b id="resultNum">12</b> 个项目</span>
       </div>
       <div class="project-grid" id="projectGrid"></div>
       <p class="empty-state" id="emptyState">该分类下暂无项目。</p>
@@ -363,7 +363,7 @@ const CONFIG = {
     "我是 Gu Tianyu，目前在北京化工大学学习。平时热衷于把学习和生活中重复、繁琐的事情写成工具：表格比对、数据筛选、二维码识别、文本生成都有涉及。",
     "我主要使用 Python，也用 TypeScript 和 Dart 做网页与移动端开发，并在 GitHub 上持续更新这些项目。欢迎交流、提 Issue，或一起完善它们。"
   ],
-  skills: ["Python","TypeScript","Dart","JavaScript","HTML/CSS","Git","数据处理","Flutter","自动化","开源"],
+  skills: ["Python","TypeScript","Java","Dart","JavaScript","HTML/CSS","Git","数据处理","Flutter","自动化","开源"],
   social: [
     {type:"github", label:"GitHub"}
     // 填好上方 email 后，取消下面这行注释即可显示邮箱图标
@@ -373,14 +373,18 @@ const CONFIG = {
   ],
   // lang 为项目主语言，用于上方筛选；repo 决定跳转地址；demo 可留空
   projects: [
-    {lang:"Python", repo:"QR-code-recognition",   name:"QR Code Recognition",   desc:"基于 Python 的二维码识别项目，可对图像中的二维码进行定位与内容解析。", tags:["Python","二维码","图像识别"], demo:""},
-    {lang:"Python", repo:"scholarships-tool",     name:"Scholarships Tool",     desc:"面向奖学金申请与评定流程的 Python 工具，用于处理相关数据和流程。", tags:["Python","自动化","奖学金"], demo:""},
-    {lang:"Python", repo:"excel-comparison",      name:"Excel Comparison",      desc:"用于比对两份 Excel 表格差异的 Python 工具，快速找出数据变化。", tags:["Python","Excel","数据比对"], demo:""},
-    {lang:"Python", repo:"novel-generation",      name:"Novel Generation",      desc:"基于 Python 的小说与文本生成实践，探索自动化文本创作。", tags:["Python","文本生成"], demo:""},
+    {lang:"Java", repo:"word-chanllenge", name:"Word Challenge", desc:"Android 原生英语单词学习游戏「单词地下城」，Java + Canvas + SQLite 开发，内置高考、四级、六级、考研四个词库共 7388 词，以闯关打怪的方式背单词。", tags:["Java","Android","单词游戏"], demo:""},
+    {lang:"Python", repo:"digital-campus", name:"Digital Campus", desc:"北京化工大学昌平校区的等距 2.5D 像素风数字校园地图，还原 16 个点位，支持角色自由行走、点位信息卡、自动寻路与小地图导航，附零依赖网页预览与 Cocos Creator 工程。", tags:["Python","像素风","校园地图"], demo:""},
+    {lang:"Python", repo:"scholarships-tool", name:"Scholarships Tool", desc:"面向奖学金申请与评定流程的 Python 工具，用于处理相关数据和流程。", tags:["Python","自动化","奖学金"], demo:""},
+    {lang:"Python", repo:"novel-generation", name:"Novel Generation", desc:"基于 Python 的小说与文本生成实践，探索自动化文本创作。", tags:["Python","文本生成"], demo:""},
+    {lang:"Python", repo:"excel-comparison", name:"Excel Comparison", desc:"用于比对两份 Excel 表格差异的 Python 工具，快速找出数据变化。", tags:["Python","Excel","数据比对"], demo:""},
+    {lang:"Dart", repo:"reader-mobile-simple", name:"Reader Mobile Simple", desc:"使用 Dart 编写的轻量移动端阅读器应用。", tags:["Dart","Flutter","阅读器"], demo:""},
+    {lang:"Python", repo:"downloader", name:"Video Downloader", desc:"基于 PySide6 与 yt-dlp 的 Windows 桌面视频下载器，支持多平台解析、画质选择、播放列表批量下载，并可读取浏览器 Cookie 处理需要登录的内容。", tags:["Python","PySide6","视频下载"], demo:""},
+    {lang:"Python", repo:"virtual-input", name:"Virtual Input", desc:"通过 Win32 SendInput 把 TXT 文本以真实键盘事件逐字符发送到当前光标处的 Windows 工具，仅用标准库实现，支持中文、emoji 与拟人化随机节奏。", tags:["Python","自动化","Win32"], demo:""},
+    {lang:"TypeScript", repo:"drawpaper--freedom", name:"Drawpaper Freedom", desc:"一个自由绘图、壁纸创作方向的 TypeScript 项目。", tags:["TypeScript","创意绘图"], demo:""},
+    {lang:"Python", repo:"QR-code-recognition", name:"QR Code Recognition", desc:"基于 Python 的二维码识别项目，可对图像中的二维码进行定位与内容解析。", tags:["Python","二维码","图像识别"], demo:""},
     {lang:"TypeScript", repo:"second-classroom-buct", name:"Second Classroom BUCT", desc:"北京化工大学第二课堂相关的网页应用，使用 TypeScript 开发。", tags:["TypeScript","校园应用"], demo:""},
-    {lang:"TypeScript", repo:"drawpaper--freedom",    name:"Drawpaper Freedom",     desc:"一个自由绘图、壁纸创作方向的 TypeScript 项目。", tags:["TypeScript","创意绘图"], demo:""},
-    {lang:"Dart", repo:"reader-mobile-simple",  name:"Reader Mobile Simple",  desc:"使用 Dart 编写的轻量移动端阅读器应用。", tags:["Dart","Flutter","阅读器"], demo:""},
-    {lang:"Python", repo:"fund-filter",           name:"Fund Filter",           desc:"用 Python 实现的基金数据筛选工具，按条件过滤出目标基金。", tags:["Python","数据筛选","基金"], demo:""}
+    {lang:"Python", repo:"fund-filter", name:"Fund Filter", desc:"用 Python 实现的基金数据筛选工具，按条件过滤出目标基金。", tags:["Python","数据筛选","基金"], demo:""}
   ],
   contactText: "无论是项目合作、技术交流，还是只是想打个招呼，都欢迎在 GitHub 上找到我；填好邮箱后也可以直接给我写信。"
 };
@@ -395,7 +399,7 @@ const ICONS = {
   twitter:'<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
 };
 const ARROW='<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-const LANGDOT={Python:"var(--lang-python)",TypeScript:"var(--lang-ts)",Dart:"var(--lang-dart)"};
+const LANGDOT={Python:"var(--lang-python)",TypeScript:"var(--lang-ts)",Dart:"var(--lang-dart)",Java:"var(--lang-java)"};
 
 const githubUrl="https://github.com/"+CONFIG.githubUser;
 const $=id=>document.getElementById(id);
